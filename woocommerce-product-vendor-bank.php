@@ -127,10 +127,11 @@ class WC_Product_Vendor_Bank_Accounts {
 		if ( isset( $this->selected_user ) ) {
 
 			for ( $i = 1; $i < 7; $i++ ) {
-				// Get connected user ID
-				$paypal_user_id = get_option( $this->id . '_paypal_account_' . $i, true );
+				// Get connected user role
+				$paypal_user_user = get_option( $this->id . '_paypal_account_' . $i, true );
+
 				// If the current author and the options match then get the PayPal email
-				if ( $paypal_user_id && ( $this->selected_user == $paypal_user_id ) ) {
+				if ( $paypal_user_user && ( $this->check_user_and_role( $this->selected_user, $paypal_user_user ) ) ) {
 					$paypal_email = get_option( $this->id . '_paypal_' . $i, true );
 					if ( $paypal_email ) {
 						$paypal_args['business'] = $paypal_email;
@@ -141,6 +142,26 @@ class WC_Product_Vendor_Bank_Accounts {
 
 		return $paypal_args;
 
+	}
+
+	/**
+	 * See if the user is a part of a role
+	 */
+	public function check_user_and_role( $user_id, $role_name ) {
+		// Get user meta details
+		$user_meta = get_userdata( $user_id );
+
+		$user_roles = $user_meta->roles; //array of roles the user is part of.
+
+		if ( $user_roles && !empty( $user_roles ) ) {
+			foreach ( $user_roles as $role ) {
+				if ( $role == $role_name ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 
@@ -163,9 +184,10 @@ class WC_Product_Vendor_Bank_Accounts {
 
 			foreach ( $init_bacs_accounts['modified'] as $i => $account ) {
 
-				$account_user = get_option( $this->id . '_' . md5( serialize( $account ) ), true );
+				// $account_user = get_option( $this->id . '_' . md5( serialize( $account ) ), true );
+				$account_user_role = get_option( $this->id . '_' . md5( serialize( $account ) ), true );
 
-				if ( $account_user && ( $this->selected_user != $account_user ) ) {
+				if ( $account_user_role && ( !$this->check_user_and_role( $this->selected_user, $account_user_role ) ) ) {
 					unset( $init_bacs_accounts['modified'][ $i ] );
 				}
 			}

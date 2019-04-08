@@ -89,6 +89,25 @@ class WC_Product_Vendor_Bank_Settings {
 	}
 
 	/**
+	 * Get all available user roles
+	 *
+	 * @since  1.0
+	 * @return  $users array
+	 */
+	public function get_wp_roles() : array {
+
+		$all_users_options['all'] = __( 'Select role', 'wpvba' );
+
+		foreach ( get_editable_roles() as $role_name => $role_info ) {
+			$all_users_options[ $role_name ] = esc_html( $role_info['name'] );
+		}
+
+		return $all_users_options;
+
+	}
+	
+
+	/**
 	 * Get all available users
 	 *
 	 * @since  1.0
@@ -143,7 +162,7 @@ class WC_Product_Vendor_Bank_Settings {
 					'id'      => $this->id . '_' . md5( serialize( $account ) ),
 					'type'    => 'select',
 					'label'   => __( 'Choose Users', 'wpvba' ),
-					'options' => $this->get_wp_users(),
+					'options' => $this->get_wp_roles(),
 				);
 			}
 		} else {
@@ -177,7 +196,7 @@ class WC_Product_Vendor_Bank_Settings {
 					'id'      => $this->id . '_paypal_account_' . $i,
 					'type'    => 'select',
 					'label'   => __( 'Choose Users', 'wpvba' ),
-					'options' => $this->get_wp_users(),
+					'options' => $this->get_wp_roles(),
 				);
 
 			}
